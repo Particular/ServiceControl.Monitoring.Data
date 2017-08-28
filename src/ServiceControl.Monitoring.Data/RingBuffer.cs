@@ -88,7 +88,9 @@
             while (Volatile.Read(ref entries[i & SizeMask].Ticks) > 0 && i < max)
             {
                 if ((i & EpochMask) != epoch)
+                {
                     break;
+                }
 
                 length++;
                 i++;
