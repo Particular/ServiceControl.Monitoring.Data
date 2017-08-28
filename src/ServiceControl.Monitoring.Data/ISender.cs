@@ -2,7 +2,7 @@
 {
     using System.Threading.Tasks;
 
-    interface ISender
+    public interface ISender
     {
         Task ReportPayload(byte[] body);
     }

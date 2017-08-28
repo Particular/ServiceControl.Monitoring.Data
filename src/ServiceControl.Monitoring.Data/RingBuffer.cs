@@ -3,9 +3,9 @@
     using System;
     using System.Threading;
 
-    class RingBuffer
+    public class RingBuffer
     {
-        public const int Size = 4096;
+        internal const int Size = 4096;
         const long SizeMask = Size - 1;
         const long EpochMask = ~SizeMask;
 
@@ -62,13 +62,13 @@
             return true;
         }
 
-        public long RoughlyEstimateItemsToConsume()
+        internal long RoughlyEstimateItemsToConsume()
         {
             return Volatile.Read(ref nextToWrite) - Volatile.Read(ref nextToConsume);
         }
 
         // Consumes a chunk of entries. This method will call onChunk zero, or one time. No multiple calls will be issued.
-        public int Consume(Action<ArraySegment<Entry>> onChunk)
+        internal int Consume(Action<ArraySegment<Entry>> onChunk)
         {
             var consume = Interlocked.CompareExchange(ref nextToConsume, 0, 0);
             var max = Volatile.Read(ref nextToWrite);

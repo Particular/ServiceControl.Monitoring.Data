@@ -5,9 +5,9 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    delegate void WriteOutput(ArraySegment<RingBuffer.Entry> entries, BinaryWriter outputWriter);
+    public delegate void WriteOutput(ArraySegment<RingBuffer.Entry> entries, BinaryWriter outputWriter);
 
-    class RawDataReporter : IDisposable
+    public class RawDataReporter : IDisposable
     {
         const int DefaultFlushSize = RingBuffer.Size / 2;
         readonly RingBuffer buffer;
