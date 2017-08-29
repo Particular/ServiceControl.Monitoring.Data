@@ -1,91 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{17510AE9-3400-4051-8F6B-D6FDC08C3D87}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceControl.Monitoring.Data.Tests</RootNamespace>
-    <AssemblyName>ServiceControl.Monitoring.Data.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <TargetFramework>net452</TargetFramework>
+    <LangVersion>7</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ApprovalTests, Version=3.0.0.0, Culture=neutral, PublicKeyToken=11bd7d124fc62e0f, processorArchitecture=MSIL">
-      <HintPath>..\packages\ApprovalTests.3.0.13\lib\net40\ApprovalTests.dll</HintPath>
-    </Reference>
-    <Reference Include="ApprovalUtilities, Version=3.0.0.0, Culture=neutral, PublicKeyToken=11bd7d124fc62e0f, processorArchitecture=MSIL">
-      <HintPath>..\packages\ApprovalUtilities.3.0.13\lib\net45\ApprovalUtilities.dll</HintPath>
-    </Reference>
-    <Reference Include="ApprovalUtilities.Net45, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ApprovalUtilities.3.0.13\lib\net45\ApprovalUtilities.Net45.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.4\lib\net45\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=3.8.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
-      <HintPath>..\packages\NUnit.3.8.0\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <Compile Remove="ServiceControl.Monitoring.Data.approved.cs" />
+    <Compile Remove="ServiceControl.Monitoring.Data.received.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APIApprovals.cs" />
-    <Compile Include="ApprovalTestConfig.cs" />
-    <Compile Include="App_Packages\ApiApprover.6.0.0\PublicApiApprover.cs" />
-    <Compile Include="App_Packages\PublicApiGenerator.6.0.0\ApiGenerator.cs" />
-    <Compile Include="LongValueWriterTests.cs" />
-    <Compile Include="OccurrenceWriterTests.cs" />
-    <Compile Include="RawDataReporterTests.cs" />
-    <Compile Include="RingBufferTests.cs" />
-    <Compile Include="TaggedLongValueWriterTests.cs" />
-    <Compile Include="WriterTestBase.cs" />
+    <PackageReference Include="ApprovalTests" Version="3.0.13" />
+    <PackageReference Include="ApprovalUtilities" Version="3.0.13" />
+    <PackageReference Include="NUnit" Version="3.8.1" />
+    <PackageReference Include="PublicApiGenerator" Version="6.1.0-beta2" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\ServiceControl.Monitoring.Data\ServiceControl.Monitoring.Data.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ServiceControl.Monitoring.Data\ServiceControl.Monitoring.Data.csproj">
-      <Project>{377c3a91-082f-4079-869e-c03546a9c58d}</Project>
-      <Name>ServiceControl.Monitoring.Data</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

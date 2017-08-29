@@ -2,8 +2,11 @@
 {
     using System.IO;
     using System.Runtime.CompilerServices;
-    using ApiApprover;
+    using ApprovalTests;
+    using ApprovalTests.Core;
+    using ApprovalTests.Writers;
     using NUnit.Framework;
+    using PublicApiGenerator;
 
     [TestFixture]
     public class APIApprovals
@@ -12,8 +15,26 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void Approve()
         {
-            Directory.SetCurrentDirectory(TestContext.CurrentContext.TestDirectory);
-            PublicApiApprover.ApprovePublicApi(typeof(RingBuffer).Assembly);
+            var publicApi = ApiGenerator.GeneratePublicApi(typeof(RingBuffer).Assembly);
+            Approvals.Verify(WriterFactory.CreateTextWriter(publicApi, "cs"), GetNamer(), Approvals.GetReporter());
+        }
+
+        IApprovalNamer GetNamer([CallerFilePath] string path = "")
+        {
+            var dir = Path.GetDirectoryName(path);
+            var name = typeof(RingBuffer).Assembly.GetName().Name;
+
+            return new Namer
+            {
+                Name = name,
+                SourcePath = dir,
+            };
+        }
+
+        class Namer : IApprovalNamer
+        {
+            public string SourcePath { get; set; }
+            public string Name { get; set; } 
         }
     }
 }

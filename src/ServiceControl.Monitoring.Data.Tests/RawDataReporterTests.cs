@@ -94,7 +94,7 @@
             public Task ReportPayload(byte[] body)
             {
                 bodies.Add(body);
-                return Task.CompletedTask;
+                return Task.FromResult(0);
             }
         }
     }
