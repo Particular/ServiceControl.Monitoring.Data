@@ -5,7 +5,7 @@
     public class LongValueWriterTests : WriterTestBase
     {
         public LongValueWriterTests() 
-            : base(LongValueWriter.Write)
+            : base(LongValueWriterV1.Write)
         {
         }
 

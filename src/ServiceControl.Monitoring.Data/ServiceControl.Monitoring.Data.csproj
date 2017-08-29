@@ -44,12 +44,11 @@
   <ItemGroup>
     <Compile Include="EntryTickComparer.cs" />
     <Compile Include="InternalsVisibleTo.cs" />
-    <Compile Include="ISender.cs" />
-    <Compile Include="LongValueWriter.cs" />
-    <Compile Include="OccurrenceWriter.cs" />
+    <Compile Include="LongValueWriterV1.cs" />
+    <Compile Include="OccurrenceWriterV1.cs" />
     <Compile Include="RawDataReporter.cs" />
     <Compile Include="RingBuffer.cs" />
-    <Compile Include="TaggedLongValueWriter.cs" />
+    <Compile Include="TaggedLongValueWriterV1.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>

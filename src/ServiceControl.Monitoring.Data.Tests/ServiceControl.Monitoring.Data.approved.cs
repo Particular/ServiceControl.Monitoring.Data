@@ -4,22 +4,18 @@
 namespace ServiceControl.Monitoring.Data
 {
     
-    public interface ISender
-    {
-        System.Threading.Tasks.Task ReportPayload(byte[] body);
-    }
-    public class static LongValueWriter
+    public class static LongValueWriterV1
     {
         public static void Write(System.IO.BinaryWriter outputWriter, System.ArraySegment<ServiceControl.Monitoring.Data.RingBuffer.Entry> chunk) { }
     }
-    public class static OccurrenceWriter
+    public class static OccurrenceWriterV1
     {
         public static void Write(System.IO.BinaryWriter outputWriter, System.ArraySegment<ServiceControl.Monitoring.Data.RingBuffer.Entry> chunk) { }
     }
     public class RawDataReporter : System.IDisposable
     {
-        public RawDataReporter(ServiceControl.Monitoring.Data.ISender sender, ServiceControl.Monitoring.Data.RingBuffer buffer, ServiceControl.Monitoring.Data.WriteOutput outputWriter) { }
-        public RawDataReporter(ServiceControl.Monitoring.Data.ISender sender, ServiceControl.Monitoring.Data.RingBuffer buffer, ServiceControl.Monitoring.Data.WriteOutput outputWriter, int flushSize, System.TimeSpan maxSpinningTime) { }
+        public RawDataReporter(System.Func<byte[], System.Threading.Tasks.Task> sender, ServiceControl.Monitoring.Data.RingBuffer buffer, ServiceControl.Monitoring.Data.WriteOutput outputWriter) { }
+        public RawDataReporter(System.Func<byte[], System.Threading.Tasks.Task> sender, ServiceControl.Monitoring.Data.RingBuffer buffer, ServiceControl.Monitoring.Data.WriteOutput outputWriter, int flushSize, System.TimeSpan maxSpinningTime) { }
         public void Dispose() { }
         public void Start() { }
         public System.Threading.Tasks.Task Stop() { }
@@ -36,9 +32,9 @@ namespace ServiceControl.Monitoring.Data
             public Entry(long ticks, long value, int tag = 0) { }
         }
     }
-    public class TaggedLongValueWriter
+    public class TaggedLongValueWriterV1
     {
-        public TaggedLongValueWriter() { }
+        public TaggedLongValueWriterV1() { }
         public int GetTagId(string tagName) { }
         public void Write(System.IO.BinaryWriter outputWriter, System.ArraySegment<ServiceControl.Monitoring.Data.RingBuffer.Entry> chunk) { }
     }

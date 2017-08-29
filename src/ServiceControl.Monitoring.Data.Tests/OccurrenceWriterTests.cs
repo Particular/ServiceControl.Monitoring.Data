@@ -5,7 +5,7 @@
     public class OccurrenceWriterTests : WriterTestBase
     {
         public OccurrenceWriterTests()
-            : base(OccurrenceWriter.Write)
+            : base(OccurrenceWriterV1.Write)
         {
         }
 

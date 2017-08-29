@@ -17,19 +17,19 @@
         readonly MemoryStream memoryStream;
         readonly CancellationTokenSource cancellationTokenSource;
         readonly TimeSpan maxSpinningTime;
-        readonly ISender sender;
+        readonly Func<byte[], Task> sender;
         Task reporter;
 
         static readonly TimeSpan DefaultMaxSpinningTime = TimeSpan.FromSeconds(5);
         static readonly TimeSpan singleSpinningTime = TimeSpan.FromMilliseconds(50);
         static readonly Task CompletedTask = Task.FromResult(0);
 
-        public RawDataReporter(ISender sender, RingBuffer buffer, WriteOutput outputWriter) 
+        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter) 
             : this(sender, buffer, outputWriter, DefaultFlushSize, DefaultMaxSpinningTime)
         {
         }
 
-        public RawDataReporter(ISender sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
+        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
         {
             this.buffer = buffer;
             this.flushSize = flushSize;
@@ -87,7 +87,7 @@
                 // clean stream
                 memoryStream.SetLength(0);
 
-                return sender.ReportPayload(body);
+                return sender(body);
             }
 
             return CompletedTask;

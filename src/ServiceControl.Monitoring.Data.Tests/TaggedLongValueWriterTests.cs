@@ -119,7 +119,7 @@
         [SetUp]
         public new void SetUp()
         {
-             Writer = new TaggedLongValueWriter();
+             Writer = new TaggedLongValueWriterV1();
         }
 
         static void Write(BinaryWriter outputWriter, ArraySegment<RingBuffer.Entry> entries)
@@ -127,10 +127,10 @@
             Writer.Write(outputWriter, entries);
         }
 
-        static TaggedLongValueWriter Writer
+        static TaggedLongValueWriterV1 Writer
         {
-            get { return (TaggedLongValueWriter) TestContext.CurrentContext.Test.Properties.Get(nameof(TaggedLongValueWriter)); }
-            set { TestContext.CurrentContext.Test.Properties.Set(nameof(TaggedLongValueWriter), value);}
+            get { return (TaggedLongValueWriterV1) TestContext.CurrentContext.Test.Properties.Get(nameof(TaggedLongValueWriterV1)); }
+            set { TestContext.CurrentContext.Test.Properties.Set(nameof(TaggedLongValueWriterV1), value);}
         }
     }
 }

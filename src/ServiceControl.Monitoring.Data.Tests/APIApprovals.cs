@@ -13,7 +13,7 @@
         public void Approve()
         {
             Directory.SetCurrentDirectory(TestContext.CurrentContext.TestDirectory);
-            PublicApiApprover.ApprovePublicApi(typeof(ISender).Assembly);
+            PublicApiApprover.ApprovePublicApi(typeof(RingBuffer).Assembly);
         }
     }
 }
