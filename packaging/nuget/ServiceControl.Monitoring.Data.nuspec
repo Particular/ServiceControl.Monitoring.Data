@@ -16,6 +16,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\binaries\ServiceControl.Monitoring.Data.???" target="lib\net452" />
+    <file src="..\..\binaries\net452\ServiceControl.Monitoring.Data.???" target="lib\net452" />
   </files>
 </package>

@@ -21,7 +21,7 @@
         [Test]
         public async Task When_flush_size_is_reached()
         {
-            var reporter = new RawDataReporter(sender, buffer, WriteEntriesValues, 4, TimeSpan.MaxValue);
+            var reporter = new RawDataReporter(sender.ReportPayload, buffer, WriteEntriesValues, 4, TimeSpan.MaxValue);
             reporter.Start();
             buffer.TryWrite(1);
             buffer.TryWrite(2);
@@ -38,7 +38,7 @@
         {
             var maxSpinningTime = TimeSpan.FromMilliseconds(100);
 
-            var reporter = new RawDataReporter(sender,  buffer, WriteEntriesValues, int.MaxValue, maxSpinningTime);
+            var reporter = new RawDataReporter(sender.ReportPayload,  buffer, WriteEntriesValues, int.MaxValue, maxSpinningTime);
             reporter.Start();
             buffer.TryWrite(1);
             buffer.TryWrite(2);
@@ -52,7 +52,7 @@
         [Test]
         public async Task When_stopped()
         {
-            var reporter = new RawDataReporter(sender, buffer, WriteEntriesValues, int.MaxValue, TimeSpan.MaxValue);
+            var reporter = new RawDataReporter(sender.ReportPayload, buffer, WriteEntriesValues, int.MaxValue, TimeSpan.MaxValue);
             reporter.Start();
             buffer.TryWrite(1);
             buffer.TryWrite(2);
@@ -87,14 +87,14 @@
             }
         }
 
-        class MockSender : ISender
+        class MockSender
         {
             public List<byte[]> bodies = new List<byte[]>();
 
             public Task ReportPayload(byte[] body)
             {
                 bodies.Add(body);
-                return Task.CompletedTask;
+                return Task.FromResult(0);
             }
         }
     }

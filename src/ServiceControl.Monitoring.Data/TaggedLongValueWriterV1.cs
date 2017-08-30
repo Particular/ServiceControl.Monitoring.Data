@@ -11,7 +11,7 @@
     /// This writer provides a protocol for writing string-tagged values.
     /// The tags are written as a dictionary at the beginning of the payload, which enables reading it to a local dictionary and performing a fast transformation for the reader.
     /// </summary>
-    class TaggedLongValueWriter
+    public class TaggedLongValueWriterV1
     {
         const long Version = 1;
 
@@ -21,7 +21,7 @@
         readonly Func<string, Tag> GenerateTag;
         int generator;
 
-        public TaggedLongValueWriter()
+        public TaggedLongValueWriterV1()
         {
             GenerateTag = str =>
             {

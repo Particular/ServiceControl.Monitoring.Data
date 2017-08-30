@@ -3,7 +3,7 @@ namespace ServiceControl.Monitoring.Data
     using System;
     using System.IO;
 
-    static class OccurrenceWriter
+    public static class OccurrenceWriterV1
     {
         const long Version = 1;
 
