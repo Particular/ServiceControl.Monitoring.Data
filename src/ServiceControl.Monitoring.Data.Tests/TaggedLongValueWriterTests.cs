@@ -9,7 +9,7 @@
     {
         static readonly UTF8Encoding NoBom = new UTF8Encoding(false);
 
-        public TaggedLongValueWriterTests() 
+        public TaggedLongValueWriterTests()
             : base(Write)
         {
         }
@@ -30,6 +30,7 @@
                 writer.Write(ticks);
                 writer.Write(0); // tag count
                 writer.Write(1); // entry count
+                writer.Write(0);
                 writer.Write(0);
                 writer.Write(value);
             });
@@ -63,6 +64,7 @@
 
                 writer.Write(1); // entry count
                 writer.Write(0);
+                writer.Write(tagId);
                 writer.Write(value);
             });
         }
@@ -99,8 +101,8 @@
                 // tag1
                 writer.Write(tagId1);
                 writer.Write(bytes1.Length);
-                writer.Write(bytes1); 
-                
+                writer.Write(bytes1);
+
                 // tag2
                 writer.Write(tagId2);
                 writer.Write(bytes2.Length);
@@ -108,13 +110,13 @@
 
                 writer.Write(2);
                 writer.Write(0);
+                writer.Write(tagId1);
                 writer.Write(value1);
                 writer.Write(timeDiff);
+                writer.Write(tagId2);
                 writer.Write(value2);
             });
         }
-
-
 
         [SetUp]
         public new void SetUp()
@@ -129,8 +131,8 @@
 
         static TaggedLongValueWriterV1 Writer
         {
-            get { return (TaggedLongValueWriterV1) TestContext.CurrentContext.Test.Properties.Get(nameof(TaggedLongValueWriterV1)); }
-            set { TestContext.CurrentContext.Test.Properties.Set(nameof(TaggedLongValueWriterV1), value);}
+            get => (TaggedLongValueWriterV1) TestContext.CurrentContext.Test.Properties.Get(nameof(TaggedLongValueWriterV1));
+            set => TestContext.CurrentContext.Test.Properties.Set(nameof(TaggedLongValueWriterV1), value);
         }
     }
 }
