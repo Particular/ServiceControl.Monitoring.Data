@@ -27,7 +27,7 @@
             buffer.TryWrite(2);
             buffer.TryWrite(3);
             buffer.TryWrite(4);
-            
+
             Assert(new long[]{1,2,3,4});
 
             await reporter.Stop();
@@ -43,7 +43,7 @@
             buffer.TryWrite(1);
             buffer.TryWrite(2);
             await Task.Delay(maxSpinningTime.Add(TimeSpan.FromMilliseconds(200)));
-            
+
             Assert(new long[] { 1, 2 });
 
             await reporter.Stop();
@@ -56,7 +56,7 @@
             reporter.Start();
             buffer.TryWrite(1);
             buffer.TryWrite(2);
-            
+
             await reporter.Stop();
 
             Assert(new long[] { 1, 2 });

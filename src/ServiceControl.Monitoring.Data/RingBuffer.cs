@@ -49,7 +49,7 @@
 
                 // do until the swap not succeeded
             } while (index != readNextWrite);
-            
+
             // index is claimed, writing data
             var i = index & SizeMask;
             var ticks = DateTime.UtcNow.Ticks;
@@ -74,10 +74,10 @@
             var max = Volatile.Read(ref nextToWrite);
 
             var i = consume;
-            
-            // The epoch identifies the id of the current passage over the circular buffer. 
-            // This is used to ensure, that once the Consume goes over the edge of the buffer, 
-            // and starts from the beginning, this part won't be included in the result passed to onChunk. 
+
+            // The epoch identifies the id of the current passage over the circular buffer.
+            // This is used to ensure, that once the Consume goes over the edge of the buffer,
+            // and starts from the beginning, this part won't be included in the result passed to onChunk.
             // If it was, this could not be represented as a continuous ArraySegment<Entry>.
             //
             // Example:
