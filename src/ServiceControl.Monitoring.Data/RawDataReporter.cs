@@ -24,7 +24,7 @@
         static readonly TimeSpan singleSpinningTime = TimeSpan.FromMilliseconds(50);
         static readonly Task CompletedTask = Task.FromResult(0);
 
-        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter) 
+        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter)
             : this(sender, buffer, outputWriter, DefaultFlushSize, DefaultMaxSpinningTime)
         {
         }
@@ -82,7 +82,8 @@
             if (consumed > 0)
             {
                 writer.Flush();
-                var body = memoryStream.ToArray(); // if only transport operation allowed ArraySegment<byte>...
+                // if only transport operation allowed ArraySegment<byte>...
+                var body = memoryStream.ToArray();
 
                 // clean stream
                 memoryStream.SetLength(0);
