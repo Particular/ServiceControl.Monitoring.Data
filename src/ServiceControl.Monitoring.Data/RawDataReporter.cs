@@ -10,7 +10,7 @@
     public class RawDataReporter : IDisposable
     {
         const int DefaultFlushSize = RingBuffer.Size / 2;
-        readonly RingBuffer buffer;
+        readonly IEntryProvider provider;
         readonly int flushSize;
         readonly Action<ArraySegment<RingBuffer.Entry>> outputWriter;
         readonly BinaryWriter writer;
@@ -24,14 +24,14 @@
         static readonly TimeSpan singleSpinningTime = TimeSpan.FromMilliseconds(50);
         static readonly Task CompletedTask = Task.FromResult(0);
 
-        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter)
-            : this(sender, buffer, outputWriter, DefaultFlushSize, DefaultMaxSpinningTime)
+        public RawDataReporter(Func<byte[], Task> sender, IEntryProvider provider, WriteOutput outputWriter)
+            : this(sender, provider, outputWriter, DefaultFlushSize, DefaultMaxSpinningTime)
         {
         }
 
-        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
+        public RawDataReporter(Func<byte[], Task> sender, IEntryProvider provider, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
         {
-            this.buffer = buffer;
+            this.provider = provider;
             this.flushSize = flushSize;
             this.maxSpinningTime = maxSpinningTime;
             this.outputWriter = entries => outputWriter(entries, writer);
@@ -57,7 +57,7 @@
                             break;
                         }
 
-                        var itemsToConsume = buffer.RoughlyEstimateItemsToConsume();
+                        var itemsToConsume = provider.RoughlyEstimateItemsToConsume();
                         if (itemsToConsume >= flushSize)
                         {
                             break;
@@ -77,7 +77,7 @@
 
         Task Consume()
         {
-            var consumed = buffer.Consume(outputWriter);
+            var consumed = provider.Consume(outputWriter);
 
             if (consumed > 0)
             {
