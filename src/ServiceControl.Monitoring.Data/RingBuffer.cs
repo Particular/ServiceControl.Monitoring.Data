@@ -3,7 +3,7 @@
     using System;
     using System.Threading;
 
-    public class RingBuffer
+    public class RingBuffer : IEntryProvider
     {
         internal const int Size = 4096;
         const long SizeMask = Size - 1;
@@ -26,6 +26,11 @@
             public long Ticks;
             public long Value;
             public int Tag;
+
+            public override string ToString()
+            {
+                return $"{nameof(Ticks)}: {Ticks}, {nameof(Value)}: {Value}, {nameof(Tag)}: {Tag}";
+            }
         }
 
         public bool TryWrite(long value, int tag = 0)
@@ -62,13 +67,13 @@
             return true;
         }
 
-        internal long RoughlyEstimateItemsToConsume()
+        long IEntryProvider.RoughlyEstimateItemsToConsume()
         {
             return Volatile.Read(ref nextToWrite) - Volatile.Read(ref nextToConsume);
         }
 
         // Consumes a chunk of entries. This method will call onChunk zero, or one time. No multiple calls will be issued.
-        internal int Consume(Action<ArraySegment<Entry>> onChunk)
+        int IEntryProvider.Consume(Action<ArraySegment<Entry>> onChunk)
         {
             var consume = Interlocked.CompareExchange(ref nextToConsume, 0, 0);
             var max = Volatile.Read(ref nextToWrite);

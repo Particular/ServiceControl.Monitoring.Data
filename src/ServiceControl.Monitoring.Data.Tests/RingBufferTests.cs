@@ -7,11 +7,13 @@
     public class RingBufferTests
     {
         RingBuffer ringBuffer;
+        IEntryProvider provider;
 
         [SetUp]
         public void SetUp()
         {
             ringBuffer = new RingBuffer();
+            provider = ringBuffer;
         }
 
         [Test]
@@ -69,7 +71,7 @@
         {
             // This test is single threaded so no cross-thread aberrations will be visible.
 
-            Assert.AreEqual(0, ringBuffer.RoughlyEstimateItemsToConsume());
+            Assert.AreEqual(0, provider.RoughlyEstimateItemsToConsume());
         }
 
         [Test]
@@ -81,7 +83,7 @@
             WriteValues(values);
             Consume(values);
 
-            Assert.AreEqual(0, ringBuffer.RoughlyEstimateItemsToConsume());
+            Assert.AreEqual(0, provider.RoughlyEstimateItemsToConsume());
         }
 
         [Test]
@@ -92,7 +94,7 @@
             var values = Enumerable.Repeat(1, RingBuffer.Size).Select(i => (long)i).ToArray();
             WriteValues(values);
 
-            Assert.AreEqual(RingBuffer.Size, ringBuffer.RoughlyEstimateItemsToConsume());
+            Assert.AreEqual(RingBuffer.Size, provider.RoughlyEstimateItemsToConsume());
         }
 
         [Test]
@@ -132,7 +134,7 @@
                     // read till it returns
                     do
                     {
-                        read = ringBuffer.Consume(chunk =>
+                        read = provider.Consume(chunk =>
                         {
                             foreach (var value in chunk)
                             {
@@ -154,7 +156,7 @@
 
         void Consume(params long[] values)
         {
-            var read = ringBuffer.Consume(entries =>
+            var read = provider.Consume(entries =>
             {
                 CollectionAssert.AreEqual(values, entries.Select(e => e.Value).ToArray());
             });
