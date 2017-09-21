@@ -8,12 +8,12 @@
         readonly ConcurrentDictionary<int, long> values = new ConcurrentDictionary<int, long>();
         RingBuffer.Entry[] entries = new RingBuffer.Entry[32];
 
-        public long RoughlyEstimateItemsToConsume()
+        long IEntryProvider.RoughlyEstimateItemsToConsume()
         {
             return 0;
         }
 
-        public int Consume(Action<ArraySegment<RingBuffer.Entry>> onChunk)
+        int IEntryProvider.Consume(Action<ArraySegment<RingBuffer.Entry>> onChunk)
         {
             var ticks = DateTime.UtcNow.Ticks;
 
@@ -27,7 +27,7 @@
                 }
 
                 entries[i].Tag = kvp.Key;
-                entries[i].Value = kvp.Key;
+                entries[i].Value = kvp.Value;
                 entries[i].Ticks = ticks;
 
                 i += 1;

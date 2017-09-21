@@ -9,7 +9,6 @@
         RingBuffer ringBuffer;
         IEntryProvider provider;
 
-
         [SetUp]
         public void SetUp()
         {

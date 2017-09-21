@@ -26,6 +26,11 @@
             public long Ticks;
             public long Value;
             public int Tag;
+
+            public override string ToString()
+            {
+                return $"{nameof(Ticks)}: {Ticks}, {nameof(Value)}: {Value}, {nameof(Tag)}: {Tag}";
+            }
         }
 
         public bool TryWrite(long value, int tag = 0)
