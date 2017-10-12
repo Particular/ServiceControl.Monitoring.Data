@@ -6,12 +6,21 @@
 
   <PropertyGroup>
     <Description>A ServiceControl.Monitoring wire format protocol serializer and a reporter.</Description>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageProjectUrl>https://particular.net/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_PackageFiles Include="**\*.cs">
+      <BuildAction>Compile</BuildAction>
+      <PackagePath>content\App_Packages\ServiceControl.Monitoring.Data\;contentFiles\cs\any\ServiceControl.Monitoring.Data\</PackagePath>
+    </_PackageFiles>
+    <_PackageFiles Remove="**\obj\**\*.cs" />
+    <_PackageFiles Remove="InternalsVisibleTo.cs" />
   </ItemGroup>
 
 </Project>
