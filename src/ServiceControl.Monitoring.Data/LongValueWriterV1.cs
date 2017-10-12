@@ -3,7 +3,7 @@
     using System;
     using System.IO;
 
-    public static class LongValueWriterV1
+    static class LongValueWriterV1
     {
         const long Version = 1;
 

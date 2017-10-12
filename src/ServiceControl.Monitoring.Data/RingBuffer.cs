@@ -3,7 +3,7 @@
     using System;
     using System.Threading;
 
-    public class RingBuffer
+    class RingBuffer
     {
         internal const int Size = 4096;
         const long SizeMask = Size - 1;
