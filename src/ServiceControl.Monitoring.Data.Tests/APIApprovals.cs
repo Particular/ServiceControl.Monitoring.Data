@@ -1,4 +1,5 @@
-﻿namespace ServiceControl.Monitoring.Data.Tests
+﻿#if NET452
+namespace ServiceControl.Monitoring.Data.Tests
 {
     using System.IO;
     using System.Runtime.CompilerServices;
@@ -16,7 +17,7 @@
         public void Approve()
         {
             var publicApi = ApiGenerator.GeneratePublicApi(typeof(RingBuffer).Assembly);
-            Approvals.Verify(WriterFactory.CreateTextWriter(publicApi, "cs"), GetNamer(), Approvals.GetReporter());
+            Approvals.Verify(WriterFactory.CreateTextWriter(publicApi, "txt"), GetNamer(), Approvals.GetReporter());
         }
 
         IApprovalNamer GetNamer([CallerFilePath] string path = "")
@@ -34,7 +35,8 @@
         class Namer : IApprovalNamer
         {
             public string SourcePath { get; set; }
-            public string Name { get; set; } 
+            public string Name { get; set; }
         }
     }
 }
+#endif
