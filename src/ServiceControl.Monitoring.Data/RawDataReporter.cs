@@ -1,6 +1,7 @@
 ﻿namespace ServiceControl.Monitoring.Data
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -11,6 +12,7 @@
     {
         const int DefaultFlushSize = 1028; // for entries written on 16bytes this will give 16kB
         const int MaxDefaultFlushSize = 2048; // for entries written on 16byte this will give 32kB
+        internal const int ParallelConsumers = 4;
         readonly RingBuffer buffer;
         readonly int flushSize;
         readonly int maxFlushSize;
@@ -54,6 +56,8 @@
         {
             reporter = Task.Run(async () =>
             {
+                var consumers = new List<Task>();
+
                 while (cancellationTokenSource.IsCancellationRequested == false)
                 {
                     var totalSpinningTime = TimeSpan.Zero;
@@ -76,11 +80,17 @@
                         await Task.Delay(singleSpinningTime).ConfigureAwait(false);
                     }
 
-                    await Consume().ConfigureAwait(false);
+                    if (consumers.Count >= ParallelConsumers)
+                    {
+                        var task = await Task.WhenAny(consumers).ConfigureAwait(false);
+                        consumers.Remove(task);
+                    }
+
+                    consumers.Add(Consume());
                 }
 
-                // flush data before ending
-                await Consume().ConfigureAwait(false);
+                // await all the flushes
+                await Task.WhenAll(consumers).ConfigureAwait(false);
             });
         }
 

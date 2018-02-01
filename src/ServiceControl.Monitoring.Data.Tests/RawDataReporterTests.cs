@@ -1,8 +1,10 @@
 ﻿namespace ServiceControl.Monitoring.Data.Tests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -28,7 +30,7 @@
             buffer.TryWrite(3);
             buffer.TryWrite(4);
 
-            Assert(new long[]{1,2,3,4});
+            AssertValues(new long[]{1,2,3,4});
 
             await reporter.Stop();
         }
@@ -43,9 +45,42 @@
             buffer.TryWrite(3);
             buffer.TryWrite(4);
 
-            Assert(new long[]{1,2}, new long[]{3,4});
+            AssertValues(new long[]{1,2}, new long[]{3,4});
 
             await reporter.Stop();
+        }
+
+        [Test]
+        public async Task When_flushing_should_use_parallel_sends()
+        {
+            var payloads = new ConcurrentQueue<byte[]>();
+            var tcs = new TaskCompletionSource<object>();
+            var semaphore = new SemaphoreSlim(0, RawDataReporter.ParallelConsumers);
+
+            Task Report(byte[] payload)
+            {
+                payloads.Enqueue(payload);
+                semaphore.Release();
+                return tcs.Task;
+            }
+
+            var reporter = new RawDataReporter(Report, buffer, WriteEntriesValues, 1, 1, TimeSpan.MaxValue);
+            reporter.Start();
+            buffer.TryWrite(1);
+            buffer.TryWrite(2);
+            buffer.TryWrite(3);
+            buffer.TryWrite(4);
+
+            await semaphore.WaitAsync();
+            await semaphore.WaitAsync();
+            await semaphore.WaitAsync();
+            await semaphore.WaitAsync();
+
+            tcs.SetResult(new object());
+
+            await reporter.Stop();
+
+            Assert.AreEqual(RawDataReporter.ParallelConsumers, payloads.Count);
         }
 
         [Test]
@@ -59,7 +94,7 @@
             buffer.TryWrite(2);
             await Task.Delay(maxSpinningTime.Add(TimeSpan.FromMilliseconds(200)));
 
-            Assert(new long[] { 1, 2 });
+            AssertValues(new long[] { 1, 2 });
 
             await reporter.Stop();
         }
@@ -74,10 +109,10 @@
 
             await reporter.Stop();
 
-            Assert(new long[] { 1, 2 });
+            AssertValues(new long[] { 1, 2 });
         }
 
-        void Assert(params long[][] values)
+        void AssertValues(params long[][] values)
         {
             var bodies = sender.bodies.ToArray();
             var i = 0;
