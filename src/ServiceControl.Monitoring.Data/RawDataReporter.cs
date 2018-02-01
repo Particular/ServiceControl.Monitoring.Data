@@ -9,9 +9,11 @@
 
     class RawDataReporter : IDisposable
     {
-        const int DefaultFlushSize = RingBuffer.Size / 2;
+        const int DefaultFlushSize = 1028; // for entries written on 16bytes this will give 16kB
+        const int MaxDefaultFlushSize = 2048; // for entries written on 16byte this will give 32kB
         readonly RingBuffer buffer;
         readonly int flushSize;
+        readonly int maxFlushSize;
         readonly Action<ArraySegment<RingBuffer.Entry>> outputWriter;
         readonly BinaryWriter writer;
         readonly MemoryStream memoryStream;
@@ -30,9 +32,16 @@
         }
 
         public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
+            : this(sender, buffer, outputWriter, flushSize, MaxDefaultFlushSize, maxSpinningTime)
+        {
+            
+        }
+
+        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, int maxFlushSize, TimeSpan maxSpinningTime)
         {
             this.buffer = buffer;
             this.flushSize = flushSize;
+            this.maxFlushSize = maxFlushSize;
             this.maxSpinningTime = maxSpinningTime;
             this.outputWriter = entries => outputWriter(entries, writer);
             this.sender = sender;
@@ -77,7 +86,7 @@
 
         Task Consume()
         {
-            var consumed = buffer.Consume(outputWriter);
+            var consumed = buffer.Consume(maxFlushSize, outputWriter);
 
             if (consumed > 0)
             {
