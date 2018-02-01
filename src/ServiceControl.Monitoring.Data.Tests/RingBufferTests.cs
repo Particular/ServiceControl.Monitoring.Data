@@ -7,6 +7,7 @@
     public class RingBufferTests
     {
         RingBuffer ringBuffer;
+        const int MaxConsume = 100;
 
         [SetUp]
         public void SetUp()
@@ -132,7 +133,7 @@
                     // read till it returns
                     do
                     {
-                        read = ringBuffer.Consume(chunk =>
+                        read = ringBuffer.Consume(MaxConsume,chunk =>
                         {
                             foreach (var value in chunk)
                             {
@@ -154,7 +155,7 @@
 
         void Consume(params long[] values)
         {
-            var read = ringBuffer.Consume(entries =>
+            var read = ringBuffer.Consume(values.Length, entries =>
             {
                 CollectionAssert.AreEqual(values, entries.Select(e => e.Value).ToArray());
             });

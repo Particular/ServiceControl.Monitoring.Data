@@ -34,6 +34,21 @@
         }
 
         [Test]
+        public async Task When_flush_size_is_reached_only_maximum_number_is_flushed()
+        {
+            var reporter = new RawDataReporter(sender.ReportPayload, buffer, WriteEntriesValues, 4, TimeSpan.MaxValue);
+            reporter.Start();
+            buffer.TryWrite(1);
+            buffer.TryWrite(2);
+            buffer.TryWrite(3);
+            buffer.TryWrite(4);
+
+            Assert(new long[]{1,2}, new long[]{3,4});
+
+            await reporter.Stop();
+        }
+
+        [Test]
         public async Task When_max_spinning_time_is_reached()
         {
             var maxSpinningTime = TimeSpan.FromMilliseconds(100);
@@ -93,7 +108,11 @@
 
             public Task ReportPayload(byte[] body)
             {
-                bodies.Add(body);
+                lock (bodies)
+                {
+                    bodies.Add(body);
+                }
+                
                 return Task.FromResult(0);
             }
         }
