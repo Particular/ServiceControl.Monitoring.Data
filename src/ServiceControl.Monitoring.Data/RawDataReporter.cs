@@ -12,7 +12,7 @@
     {
         const int DefaultFlushSize = 1028; // for entries written on 16bytes this will give 16kB
         const int MaxDefaultFlushSize = 2048; // for entries written on 16byte this will give 32kB
-        internal const int ParallelConsumers = 4;
+        internal const int MaxParallelConsumers = 4;
         readonly RingBuffer buffer;
         readonly int flushSize;
         readonly int maxFlushSize;
@@ -36,7 +36,7 @@
         public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
             : this(sender, buffer, outputWriter, flushSize, MaxDefaultFlushSize, maxSpinningTime)
         {
-            
+
         }
 
         public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, int maxFlushSize, TimeSpan maxSpinningTime)
@@ -56,7 +56,7 @@
         {
             reporter = Task.Run(async () =>
             {
-                var consumers = new List<Task>();
+                var consumers = new List<Task>(MaxParallelConsumers + 1);
 
                 while (cancellationTokenSource.IsCancellationRequested == false)
                 {
@@ -80,7 +80,7 @@
                         await Task.Delay(singleSpinningTime).ConfigureAwait(false);
                     }
 
-                    if (consumers.Count >= ParallelConsumers)
+                    if (consumers.Count >= MaxParallelConsumers)
                     {
                         var task = await Task.WhenAny(consumers).ConfigureAwait(false);
                         consumers.Remove(task);

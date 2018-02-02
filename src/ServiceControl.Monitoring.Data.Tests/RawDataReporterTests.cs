@@ -30,7 +30,7 @@
             buffer.TryWrite(3);
             buffer.TryWrite(4);
 
-            AssertValues(new long[]{1,2,3,4});
+            AssertValues(new long[] { 1, 2, 3, 4 });
 
             await reporter.Stop();
         }
@@ -45,7 +45,7 @@
             buffer.TryWrite(3);
             buffer.TryWrite(4);
 
-            AssertValues(new long[]{1,2}, new long[]{3,4});
+            AssertValues(new long[] { 1, 2 }, new long[] { 3, 4 });
 
             await reporter.Stop();
         }
@@ -53,34 +53,60 @@
         [Test]
         public async Task When_flushing_should_use_parallel_sends()
         {
+            // this test aims at simulating the consumers that are slow enough to fill parallelism of reporter
+            // it asserts that no progress is done till one of them finishes
+
+            const int max = RawDataReporter.MaxParallelConsumers;
+
             var payloads = new ConcurrentQueue<byte[]>();
             var tcs = new TaskCompletionSource<object>();
-            var semaphore = new SemaphoreSlim(0, RawDataReporter.ParallelConsumers);
+            var semaphore = new SemaphoreSlim(0, max);
+
+            var counter = 0;
 
             Task Report(byte[] payload)
             {
+                var value = ReadValues(payload)[0];
+                if (value < max)
+                {
+                    payloads.Enqueue(payload);
+                    semaphore.Release();
+                    return tcs.Task;
+                }
+
                 payloads.Enqueue(payload);
-                semaphore.Release();
-                return tcs.Task;
+                Interlocked.Increment(ref counter);
+                return Task.FromResult(0);
             }
 
-            var reporter = new RawDataReporter(Report, buffer, WriteEntriesValues, 1, 1, TimeSpan.MaxValue);
+            var reporter = new RawDataReporter(Report, buffer, WriteEntriesValues, flushSize: 1, maxFlushSize: 1, maxSpinningTime: TimeSpan.MaxValue);
             reporter.Start();
-            buffer.TryWrite(1);
-            buffer.TryWrite(2);
-            buffer.TryWrite(3);
-            buffer.TryWrite(4);
 
-            await semaphore.WaitAsync();
-            await semaphore.WaitAsync();
-            await semaphore.WaitAsync();
-            await semaphore.WaitAsync();
+            for (var i = 0; i < max; i++)
+            {
+                buffer.TryWrite(i);
+            }
+            
+            // additional write
+            buffer.TryWrite(max);
 
-            tcs.SetResult(new object());
+            for (var i = 0; i < max; i++)
+            {
+                await semaphore.WaitAsync();
+            }
+
+            // no new reports scheduled before previous complete
+            Assert.AreEqual(0, counter);
+
+            // complete all the reports
+            tcs.SetResult("");
 
             await reporter.Stop();
 
-            Assert.AreEqual(RawDataReporter.ParallelConsumers, payloads.Count);
+            // should have run the additional one
+            Assert.AreEqual(1, counter);
+
+            Assert.AreEqual(max + 1, payloads.Count);
         }
 
         [Test]
@@ -88,7 +114,7 @@
         {
             var maxSpinningTime = TimeSpan.FromMilliseconds(100);
 
-            var reporter = new RawDataReporter(sender.ReportPayload,  buffer, WriteEntriesValues, int.MaxValue, maxSpinningTime);
+            var reporter = new RawDataReporter(sender.ReportPayload, buffer, WriteEntriesValues, int.MaxValue, maxSpinningTime);
             reporter.Start();
             buffer.TryWrite(1);
             buffer.TryWrite(2);
@@ -118,15 +144,21 @@
             var i = 0;
             foreach (var body in bodies)
             {
-                var encodedValues = new List<long>();
-                var reader = new BinaryReader(new MemoryStream(body));
-                while (reader.BaseStream.Position < reader.BaseStream.Length)
-                {
-                    encodedValues.Add(reader.ReadInt64());
-                }
+                var encodedValues = ReadValues(body);
 
                 CollectionAssert.AreEqual(values[i], encodedValues);
             }
+        }
+
+        static List<long> ReadValues(byte[] body)
+        {
+            var encodedValues = new List<long>();
+            var reader = new BinaryReader(new MemoryStream(body));
+            while (reader.BaseStream.Position < reader.BaseStream.Length)
+            {
+                encodedValues.Add(reader.ReadInt64());
+            }
+            return encodedValues;
         }
 
         static void WriteEntriesValues(ArraySegment<RingBuffer.Entry> entries, BinaryWriter writer)
@@ -147,7 +179,7 @@
                 {
                     bodies.Add(body);
                 }
-                
+
                 return Task.FromResult(0);
             }
         }
