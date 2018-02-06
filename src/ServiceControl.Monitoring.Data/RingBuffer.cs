@@ -68,7 +68,7 @@
         }
 
         // Consumes a chunk of entries. This method will call onChunk zero, or one time. No multiple calls will be issued.
-        internal int Consume(Action<ArraySegment<Entry>> onChunk)
+        internal int Consume(int maxFlushSize, Action<ArraySegment<Entry>> onChunk)
         {
             var consume = Interlocked.CompareExchange(ref nextToConsume, 0, 0);
             var max = Volatile.Read(ref nextToWrite);
@@ -85,7 +85,7 @@
             // a segment [4] followed by consumption of [5, 6] in the next Consume call.
             var epoch = i & EpochMask;
             var length = 0;
-            while (Volatile.Read(ref entries[i & SizeMask].Ticks) > 0 && i < max)
+            while (Volatile.Read(ref entries[i & SizeMask].Ticks) > 0 && i < max && length < maxFlushSize)
             {
                 if ((i & EpochMask) != epoch)
                 {
