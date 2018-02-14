@@ -91,6 +91,14 @@
 
                 // await all the flushes
                 await Task.WhenAll(consumers).ConfigureAwait(false);
+
+                // consume leftovers
+                var consumed = buffer.Consume(maxFlushSize, outputWriter);
+                while (consumed > 0)
+                {
+                    await Flush().ConfigureAwait(false);
+                    consumed = buffer.Consume(maxFlushSize, outputWriter);
+                }
             });
         }
 
@@ -100,17 +108,22 @@
 
             if (consumed > 0)
             {
-                writer.Flush();
-                // if only transport operation allowed ArraySegment<byte>...
-                var body = memoryStream.ToArray();
-
-                // clean stream
-                memoryStream.SetLength(0);
-
-                return sender(body);
+                return Flush();
             }
 
             return CompletedTask;
+        }
+
+        Task Flush()
+        {
+            writer.Flush();
+            // if only transport operation allowed ArraySegment<byte>...
+            var body = memoryStream.ToArray();
+
+            // clean stream
+            memoryStream.SetLength(0);
+
+            return sender(body);
         }
 
         public Task Stop()

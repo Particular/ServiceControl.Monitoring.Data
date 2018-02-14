@@ -166,7 +166,7 @@
             });
 
             var stop = reporter.Stop();
-            // await Task.WhenAll(TaskOrDelay(writer,"Writer"), TaskOrDelay(stop, "stop"));
+            //await Task.WhenAll(TaskOrDelay(writer,"Writer"), TaskOrDelay(stop, "stop"));
 
             await Task.WhenAll(writer, stop);
 
