@@ -142,27 +142,33 @@
         [Test]
         public async Task When_highthrouput_endpoint_shuts_down()
         {
-            var tcs = new TaskCompletionSource<object>();
+            const int testSize = 10000;
             var queue = new ConcurrentQueue<byte[]>();
 
             Task Send(byte[] data)
             {
                 queue.Enqueue(data);
-                return tcs.Task;
+                return Task.Delay(TimeSpan.FromMilliseconds(100)); // delay to make it realistically long
             }
 
             var reporter = new RawDataReporter(Send, buffer, WriteEntriesValues);
             reporter.Start();
 
-            const int testSize = 10000;
-            for (var i = 0; i < testSize; i++)
+            var writer = Task.Run(() =>
             {
-                buffer.TryWrite(i);
-            }
+                for (var i = 0; i < testSize; i++)
+                {
+                    while (buffer.TryWrite(i) == false)
+                    {
+                        // spin till it's written
+                    }
+                }
+            });
 
             var stop = reporter.Stop();
-            tcs.SetResult(new object());
-            await stop;
+            // await Task.WhenAll(TaskOrDelay(writer,"Writer"), TaskOrDelay(stop, "stop"));
+
+            await Task.WhenAll(writer, stop);
 
             var values = new HashSet<long>();
             foreach (var current in queue.ToArray().Select(ReadValues))
@@ -174,6 +180,16 @@
             }
 
             Assert.AreEqual(testSize, values.Count);
+        }
+
+        async Task TaskOrDelay(Task task, string name)
+        {
+            var delay = Task.Delay(TimeSpan.FromSeconds(10));
+            var returned = await Task.WhenAny(task, delay);
+            if (returned == delay)
+            {
+                throw new Exception($"Task '{name}' was not finished on time");
+            }
         }
 
         void AssertValues(params long[][] values)
