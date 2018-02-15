@@ -154,21 +154,16 @@
             var reporter = new RawDataReporter(Send, buffer, WriteEntriesValues);
             reporter.Start();
 
-            var writer = Task.Run(() =>
+            // write values
+            for (var i = 0; i < testSize; i++)
             {
-                for (var i = 0; i < testSize; i++)
+                while (buffer.TryWrite(i) == false)
                 {
-                    while (buffer.TryWrite(i) == false)
-                    {
-                        // spin till it's written
-                    }
+                    // spin till it's written
                 }
-            });
+            }
 
-            var stop = reporter.Stop();
-            //await Task.WhenAll(TaskOrDelay(writer,"Writer"), TaskOrDelay(stop, "stop"));
-
-            await Task.WhenAll(writer, stop);
+            await reporter.Stop();
 
             var values = new HashSet<long>();
             foreach (var current in queue.ToArray().Select(ReadValues))
@@ -180,16 +175,6 @@
             }
 
             Assert.AreEqual(testSize, values.Count);
-        }
-
-        async Task TaskOrDelay(Task task, string name)
-        {
-            var delay = Task.Delay(TimeSpan.FromSeconds(10));
-            var returned = await Task.WhenAny(task, delay);
-            if (returned == delay)
-            {
-                throw new Exception($"Task '{name}' was not finished on time");
-            }
         }
 
         void AssertValues(params long[][] values)
