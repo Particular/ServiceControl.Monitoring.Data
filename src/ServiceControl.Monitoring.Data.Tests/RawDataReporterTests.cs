@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -86,7 +87,7 @@
             {
                 buffer.TryWrite(i);
             }
-            
+
             // additional write
             buffer.TryWrite(max);
 
@@ -136,6 +137,44 @@
             await reporter.Stop();
 
             AssertValues(new long[] { 1, 2 });
+        }
+
+        [Test]
+        public async Task When_highthrouput_endpoint_shuts_down()
+        {
+            const int testSize = 10000;
+            var queue = new ConcurrentQueue<byte[]>();
+
+            Task Send(byte[] data)
+            {
+                queue.Enqueue(data);
+                return Task.Delay(TimeSpan.FromMilliseconds(100)); // delay to make it realistically long
+            }
+
+            var reporter = new RawDataReporter(Send, buffer, WriteEntriesValues);
+            reporter.Start();
+
+            // write values
+            for (var i = 0; i < testSize; i++)
+            {
+                while (buffer.TryWrite(i) == false)
+                {
+                    // spin till it's written
+                }
+            }
+
+            await reporter.Stop();
+
+            var values = new HashSet<long>();
+            foreach (var current in queue.ToArray().Select(ReadValues))
+            {
+                foreach (var v in current)
+                {
+                    values.Add(v);
+                }
+            }
+
+            Assert.AreEqual(testSize, values.Count);
         }
 
         void AssertValues(params long[][] values)
