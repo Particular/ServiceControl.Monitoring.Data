@@ -4,6 +4,7 @@
     using System.IO;
     using System.Text;
     using NUnit.Framework;
+    using NUnit.Framework.Internal;
 
     public class TaggedLongValueWriterTests : WriterTestBase
     {
@@ -131,8 +132,8 @@
 
         static TaggedLongValueWriterV1 Writer
         {
-            get => (TaggedLongValueWriterV1) TestContext.CurrentContext.Test.Properties.Get(nameof(TaggedLongValueWriterV1));
-            set => TestContext.CurrentContext.Test.Properties.Set(nameof(TaggedLongValueWriterV1), value);
+            get => (TaggedLongValueWriterV1) TestExecutionContext.CurrentContext.CurrentTest.Properties.Get(nameof(TaggedLongValueWriterV1));
+            set => TestExecutionContext.CurrentContext.CurrentTest.Properties.Set(nameof(TaggedLongValueWriterV1), value);
         }
     }
 }
