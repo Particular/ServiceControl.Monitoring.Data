@@ -10,8 +10,8 @@
         static readonly UTF8Encoding NoBom = new UTF8Encoding(false);
 
         public TaggedLongValueWriterTests()
-            : base(Write)
         {
+            SetWriter(Write);
         }
 
         [Test]
@@ -44,7 +44,7 @@
             const long value = 1345347;
 
             const string tagName = "this is a test tag value 111!!!";
-            var tagId = Writer.GetTagId(tagName);
+            var tagId = writer.GetTagId(tagName);
             var bytes = NoBom.GetBytes(tagName);
 
             var entry = new RingBuffer.Entry { Ticks = ticks, Value = value, Tag = tagId };
@@ -79,11 +79,11 @@
             const int timeDiff = 1;
 
             const string tagName1 = "this is a test tag value 111!!!";
-            var tagId1 = Writer.GetTagId(tagName1);
+            var tagId1 = writer.GetTagId(tagName1);
             var bytes1 = NoBom.GetBytes(tagName1);
 
             const string tagName2 = "this is another test tag value 222@@@ Even longer than the first one!";
-            var tagId2 = Writer.GetTagId(tagName2);
+            var tagId2 = writer.GetTagId(tagName2);
             var bytes2 = NoBom.GetBytes(tagName2);
 
             Write(
@@ -121,18 +121,14 @@
         [SetUp]
         public new void SetUp()
         {
-             Writer = new TaggedLongValueWriterV1();
+             writer = new TaggedLongValueWriterV1();
         }
 
-        static void Write(BinaryWriter outputWriter, ArraySegment<RingBuffer.Entry> entries)
+        void Write(BinaryWriter outputWriter, ArraySegment<RingBuffer.Entry> entries)
         {
-            Writer.Write(outputWriter, entries);
+            writer.Write(outputWriter, entries);
         }
 
-        static TaggedLongValueWriterV1 Writer
-        {
-            get => (TaggedLongValueWriterV1) TestContext.CurrentContext.Test.Properties.Get(nameof(TaggedLongValueWriterV1));
-            set => TestContext.CurrentContext.Test.Properties.Set(nameof(TaggedLongValueWriterV1), value);
-        }
+        TaggedLongValueWriterV1 writer;
     }
 }

@@ -11,10 +11,14 @@ namespace ServiceControl.Monitoring.Data.Tests
         BinaryWriter bw;
         Action<BinaryWriter, ArraySegment<RingBuffer.Entry>> writer;
 
-        internal WriterTestBase(Action<BinaryWriter, ArraySegment<RingBuffer.Entry>> writer)
+        internal WriterTestBase()
         {
             ms = new MemoryStream();
             bw = new BinaryWriter(ms);
+        }
+
+        internal void SetWriter(Action<BinaryWriter, ArraySegment<RingBuffer.Entry>> writer)
+        {
             this.writer = writer;
         }
 
