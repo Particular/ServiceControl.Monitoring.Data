@@ -1,42 +1,17 @@
-﻿#if NET452
-namespace ServiceControl.Monitoring.Data.Tests
+﻿namespace ServiceControl.Monitoring.Data.Tests
 {
-    using System.IO;
-    using System.Runtime.CompilerServices;
-    using ApprovalTests;
-    using ApprovalTests.Core;
-    using ApprovalTests.Writers;
     using NUnit.Framework;
+    using Particular.Approvals;
     using PublicApiGenerator;
 
     [TestFixture]
     public class APIApprovals
     {
         [Test]
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public void Approve()
         {
-            var publicApi = ApiGenerator.GeneratePublicApi(typeof(RingBuffer).Assembly);
-            Approvals.Verify(WriterFactory.CreateTextWriter(publicApi, "txt"), GetNamer(), Approvals.GetReporter());
-        }
-
-        IApprovalNamer GetNamer([CallerFilePath] string path = "")
-        {
-            var dir = Path.GetDirectoryName(path);
-            var name = typeof(RingBuffer).Assembly.GetName().Name;
-
-            return new Namer
-            {
-                Name = name,
-                SourcePath = dir,
-            };
-        }
-
-        class Namer : IApprovalNamer
-        {
-            public string SourcePath { get; set; }
-            public string Name { get; set; }
+            var publicApi = ApiGenerator.GeneratePublicApi(typeof(RingBuffer).Assembly, excludeAttributes: new[] { "System.Runtime.Versioning.TargetFrameworkAttribute" });
+            Approver.Verify(publicApi);
         }
     }
 }
-#endif
