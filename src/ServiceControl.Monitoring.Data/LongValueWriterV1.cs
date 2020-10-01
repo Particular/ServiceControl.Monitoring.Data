@@ -16,7 +16,6 @@
         //+-------+-------+-------+-------+---------------+-------+-------+
         //| date2 |   value  2    | date3 |     value 3   | date4 | ...   |
         //+-------+---------------+-------+---------------+-------+-------+
-
         public static void Write(BinaryWriter outputWriter, ArraySegment<RingBuffer.Entry> chunk)
         {
             var array = chunk.Array;

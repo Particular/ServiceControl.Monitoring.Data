@@ -48,7 +48,8 @@
                 readNextWrite = Interlocked.CompareExchange(ref nextToWrite, index + 1, index);
 
                 // do until the swap not succeeded
-            } while (index != readNextWrite);
+            } 
+            while (index != readNextWrite);
 
             // index is claimed, writing data
             var i = index & SizeMask;
