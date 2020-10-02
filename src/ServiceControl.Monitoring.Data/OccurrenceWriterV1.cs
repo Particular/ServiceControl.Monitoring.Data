@@ -17,7 +17,6 @@ namespace ServiceControl.Monitoring.Data
         //| date4 | date5 | date6 | date7 | date8 | ...
         //+---------------+---------------+-------------------------------+
         //| ....
-
         public static void Write(BinaryWriter outputWriter, ArraySegment<RingBuffer.Entry> chunk)
         {
             var array = chunk.Array;

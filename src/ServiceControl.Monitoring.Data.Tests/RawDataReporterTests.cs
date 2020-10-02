@@ -56,7 +56,6 @@
         {
             // this test aims at simulating the consumers that are slow enough to fill parallelism of reporter
             // it asserts that no progress is done till one of them finishes
-
             const int max = RawDataReporter.MaxParallelConsumers;
 
             var payloads = new ConcurrentQueue<byte[]>();
