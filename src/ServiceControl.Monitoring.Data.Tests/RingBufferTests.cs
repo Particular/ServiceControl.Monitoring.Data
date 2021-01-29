@@ -130,14 +130,14 @@
                     // read till it returns
                     do
                     {
-                        read = ringBuffer.Consume(MaxConsume,chunk =>
-                        {
-                            foreach (var value in chunk)
-                            {
-                                result[value.Value] = 1;
-                            }
-                        });
-                    } 
+                        read = ringBuffer.Consume(MaxConsume, chunk =>
+                         {
+                             foreach (var value in chunk)
+                             {
+                                 result[value.Value] = 1;
+                             }
+                         });
+                    }
                     while (read > 0);
 
                     var completed = result.Count(b => b > 0);

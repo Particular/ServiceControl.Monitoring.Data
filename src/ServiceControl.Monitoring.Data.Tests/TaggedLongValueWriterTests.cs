@@ -121,7 +121,7 @@
         [SetUp]
         public new void SetUp()
         {
-             writer = new TaggedLongValueWriterV1();
+            writer = new TaggedLongValueWriterV1();
         }
 
         void Write(BinaryWriter outputWriter, ArraySegment<RingBuffer.Entry> entries)
