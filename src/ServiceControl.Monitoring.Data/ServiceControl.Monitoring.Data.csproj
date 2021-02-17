@@ -4,23 +4,19 @@
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Particular.Packaging" Version="1.0.1" PrivateAssets="All" />
+  </ItemGroup>
+
   <PropertyGroup>
     <Description>A ServiceControl.Monitoring wire format protocol serializer and a reporter.</Description>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageProjectUrl>https://particular.net/</PackageProjectUrl>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSourceFilesInPackage>true</IncludeSourceFilesInPackage>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Particular.Packaging" Version="0.9.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_PackageFiles Include="**\*.cs">
-      <BuildAction>Compile</BuildAction>
-      <PackagePath>content\App_Packages\ServiceControl.Monitoring.Data\;contentFiles\cs\any\ServiceControl.Monitoring.Data\</PackagePath>
-    </_PackageFiles>
-    <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="InternalsVisibleTo.cs" />
+    <RemoveSourceFileFromPackage Include="InternalsVisibleTo.cs" />
   </ItemGroup>
 
 </Project>
