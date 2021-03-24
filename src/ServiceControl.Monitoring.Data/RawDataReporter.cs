@@ -127,13 +127,14 @@
             return sender(body, cancellationToken);
         }
 
-        public Task Stop(CancellationToken cancellationToken = default)
+        public async Task Stop(CancellationToken cancellationToken = default)
         {
             stopReporterTokenSource.Cancel();
 
-            cancellationToken.Register(() => cancelReportingTokenSource?.Cancel());
-
-            return reporter;
+            using (cancellationToken.Register(() => cancelReportingTokenSource.Cancel()))
+            {
+                await reporter.ConfigureAwait(false);
+            }
         }
 
         public void Dispose()
@@ -142,7 +143,6 @@
             memoryStream?.Dispose();
             stopReporterTokenSource?.Dispose();
             cancelReportingTokenSource?.Dispose();
-            cancelReportingTokenSource = null;
         }
     }
 }
