@@ -20,9 +20,9 @@
         readonly BinaryWriter writer;
         readonly MemoryStream memoryStream;
         readonly CancellationTokenSource stopReporterTokenSource;
-        readonly CancellationTokenSource cancelReportingTokenSource;
         readonly TimeSpan maxSpinningTime;
         readonly Func<byte[], CancellationToken, Task> sender;
+        CancellationTokenSource cancelReportingTokenSource;
         Task reporter;
 
         static readonly TimeSpan DefaultMaxSpinningTime = TimeSpan.FromSeconds(5);
@@ -142,6 +142,7 @@
             memoryStream?.Dispose();
             stopReporterTokenSource?.Dispose();
             cancelReportingTokenSource?.Dispose();
+            cancelReportingTokenSource = null;
         }
     }
 }
