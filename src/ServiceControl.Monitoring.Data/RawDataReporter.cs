@@ -19,27 +19,27 @@
         readonly Action<ArraySegment<RingBuffer.Entry>> outputWriter;
         readonly BinaryWriter writer;
         readonly MemoryStream memoryStream;
-        readonly CancellationTokenSource cancellationTokenSource;
+        readonly CancellationTokenSource stopReporterTokenSource;
+        readonly CancellationTokenSource cancelReportingTokenSource;
         readonly TimeSpan maxSpinningTime;
-        readonly Func<byte[], Task> sender;
+        readonly Func<byte[], CancellationToken, Task> sender;
         Task reporter;
 
         static readonly TimeSpan DefaultMaxSpinningTime = TimeSpan.FromSeconds(5);
         static readonly TimeSpan singleSpinningTime = TimeSpan.FromMilliseconds(50);
-        static readonly Task CompletedTask = Task.FromResult(0);
 
-        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter)
+        public RawDataReporter(Func<byte[], CancellationToken, Task> sender, RingBuffer buffer, WriteOutput outputWriter)
             : this(sender, buffer, outputWriter, DefaultFlushSize, DefaultMaxSpinningTime)
         {
         }
 
-        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
+        public RawDataReporter(Func<byte[], CancellationToken, Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, TimeSpan maxSpinningTime)
             : this(sender, buffer, outputWriter, flushSize, MaxDefaultFlushSize, maxSpinningTime)
         {
 
         }
 
-        public RawDataReporter(Func<byte[], Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, int maxFlushSize, TimeSpan maxSpinningTime)
+        public RawDataReporter(Func<byte[], CancellationToken, Task> sender, RingBuffer buffer, WriteOutput outputWriter, int flushSize, int maxFlushSize, TimeSpan maxSpinningTime)
         {
             this.buffer = buffer;
             this.flushSize = flushSize;
@@ -49,7 +49,8 @@
             this.sender = sender;
             memoryStream = new MemoryStream();
             writer = new BinaryWriter(memoryStream);
-            cancellationTokenSource = new CancellationTokenSource();
+            stopReporterTokenSource = new CancellationTokenSource();
+            cancelReportingTokenSource = new CancellationTokenSource();
         }
 
         public void Start()
@@ -58,14 +59,14 @@
             {
                 var consumers = new List<Task>(MaxParallelConsumers + 1);
 
-                while (cancellationTokenSource.IsCancellationRequested == false)
+                while (!stopReporterTokenSource.IsCancellationRequested)
                 {
                     var totalSpinningTime = TimeSpan.Zero;
 
                     // spin till either MaxSpinningTime is reached OR items to consume are more than FlushSize
                     while (totalSpinningTime < maxSpinningTime)
                     {
-                        if (cancellationTokenSource.IsCancellationRequested)
+                        if (stopReporterTokenSource.IsCancellationRequested)
                         {
                             break;
                         }
@@ -77,7 +78,7 @@
                         }
 
                         totalSpinningTime += singleSpinningTime;
-                        await Task.Delay(singleSpinningTime).ConfigureAwait(false);
+                        await Task.Delay(singleSpinningTime, cancelReportingTokenSource.Token).ConfigureAwait(false);
                     }
 
                     if (consumers.Count >= MaxParallelConsumers)
@@ -86,7 +87,7 @@
                         consumers.Remove(task);
                     }
 
-                    consumers.Add(Consume());
+                    consumers.Add(Consume(cancelReportingTokenSource.Token));
                 }
 
                 // await all the flushes
@@ -96,25 +97,25 @@
                 var consumed = buffer.Consume(maxFlushSize, outputWriter);
                 while (consumed > 0)
                 {
-                    await Flush().ConfigureAwait(false);
+                    await Flush(cancelReportingTokenSource.Token).ConfigureAwait(false);
                     consumed = buffer.Consume(maxFlushSize, outputWriter);
                 }
             });
         }
 
-        Task Consume()
+        Task Consume(CancellationToken cancellationToken)
         {
             var consumed = buffer.Consume(maxFlushSize, outputWriter);
 
             if (consumed > 0)
             {
-                return Flush();
+                return Flush(cancellationToken);
             }
 
-            return CompletedTask;
+            return Task.CompletedTask;
         }
 
-        Task Flush()
+        Task Flush(CancellationToken cancellationToken)
         {
             writer.Flush();
             // if only transport operation allowed ArraySegment<byte>...
@@ -123,12 +124,15 @@
             // clean stream
             memoryStream.SetLength(0);
 
-            return sender(body);
+            return sender(body, cancellationToken);
         }
 
-        public Task Stop()
+        public Task Stop(CancellationToken cancellationToken = default)
         {
-            cancellationTokenSource.Cancel();
+            stopReporterTokenSource.Cancel();
+
+            cancellationToken.Register(() => cancelReportingTokenSource?.Cancel());
+
             return reporter;
         }
 
@@ -136,7 +140,8 @@
         {
             writer?.Dispose();
             memoryStream?.Dispose();
-            cancellationTokenSource?.Dispose();
+            stopReporterTokenSource?.Dispose();
+            cancelReportingTokenSource?.Dispose();
         }
     }
 }

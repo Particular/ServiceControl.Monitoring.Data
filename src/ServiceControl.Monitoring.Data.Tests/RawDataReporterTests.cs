@@ -64,7 +64,7 @@
 
             var counter = 0;
 
-            Task Report(byte[] payload)
+            Task Report(byte[] payload, CancellationToken cancellationToken)
             {
                 var value = ReadValues(payload)[0];
                 if (value < max)
@@ -144,10 +144,10 @@
             const int testSize = 10000;
             var queue = new ConcurrentQueue<byte[]>();
 
-            Task Send(byte[] data)
+            Task Send(byte[] data, CancellationToken cancellationToken)
             {
                 queue.Enqueue(data);
-                return Task.Delay(TimeSpan.FromMilliseconds(100)); // delay to make it realistically long
+                return Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken); // delay to make it realistically long
             }
 
             var reporter = new RawDataReporter(Send, buffer, WriteEntriesValues);
@@ -211,7 +211,9 @@
         {
             public List<byte[]> bodies = new List<byte[]>();
 
-            public Task ReportPayload(byte[] body)
+#pragma warning disable IDE0060 // Remove unused parameter
+            public Task ReportPayload(byte[] body, CancellationToken cancellationToken)
+#pragma warning restore IDE0060 // Remove unused parameter
             {
                 lock (bodies)
                 {
