@@ -22,7 +22,7 @@
         readonly CancellationTokenSource stopReporterTokenSource;
         readonly TimeSpan maxSpinningTime;
         readonly Func<byte[], CancellationToken, Task> sender;
-        CancellationTokenSource cancelReportingTokenSource;
+        readonly CancellationTokenSource cancelReportingTokenSource;
         Task reporter;
 
         static readonly TimeSpan DefaultMaxSpinningTime = TimeSpan.FromSeconds(5);
