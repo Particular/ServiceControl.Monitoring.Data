@@ -1,1 +1,1 @@
-[assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute("ServiceControl.Monitoring.Data.Tests")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ServiceControl.Monitoring.Data.Tests")]
