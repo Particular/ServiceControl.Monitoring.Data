@@ -212,7 +212,7 @@
             public List<byte[]> bodies = new List<byte[]>();
 
 #pragma warning disable IDE0060 // Remove unused parameter
-            public Task ReportPayload(byte[] body, CancellationToken cancellationToken)
+            public Task ReportPayload(byte[] body, CancellationToken cancellationToken = default)
 #pragma warning restore IDE0060 // Remove unused parameter
             {
                 lock (bodies)
