@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <RemoveSourceFileFromPackage Include="InternalsVisibleTo.cs" />
+    <InternalsVisibleTo Include="ServiceControl.Monitoring.Data.Tests" />
   </ItemGroup>
 
 </Project>
