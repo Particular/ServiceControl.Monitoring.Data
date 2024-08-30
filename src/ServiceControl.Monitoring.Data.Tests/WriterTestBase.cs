@@ -51,7 +51,7 @@ namespace ServiceControl.Monitoring.Data.Tests
                     binaryWriter.Flush();
                 }
 
-                CollectionAssert.AreEqual(stream.ToArray(), ms.ToArray());
+                NUnit.Framework.Assert.That(stream.ToArray(), Is.EquivalentTo(ms.ToArray()));
             }
         }
 

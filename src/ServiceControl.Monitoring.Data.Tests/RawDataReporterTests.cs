@@ -96,7 +96,7 @@
             }
 
             // no new reports scheduled before previous complete
-            Assert.AreEqual(0, counter);
+            Assert.That(counter, Is.EqualTo(0));
 
             // complete all the reports
             tcs.SetResult("");
@@ -104,9 +104,8 @@
             await reporter.Stop();
 
             // should have run the additional one
-            Assert.AreEqual(1, counter);
-
-            Assert.AreEqual(max + 1, payloads.Count);
+            Assert.That(counter, Is.EqualTo(1));
+            Assert.That(payloads.Count, Is.EqualTo(max + 1));
         }
 
         [Test]
@@ -173,7 +172,7 @@
                 }
             }
 
-            Assert.AreEqual(testSize, values.Count);
+            Assert.That(values.Count, Is.EqualTo(testSize));
         }
 
         void AssertValues(params long[][] values)
@@ -183,8 +182,7 @@
             foreach (var body in bodies)
             {
                 var encodedValues = ReadValues(body);
-
-                CollectionAssert.AreEqual(values[i], encodedValues);
+                Assert.That(encodedValues, Is.EquivalentTo(values[i]));
             }
         }
 
@@ -209,7 +207,7 @@
 
         class MockSender
         {
-            public List<byte[]> bodies = new List<byte[]>();
+            public List<byte[]> bodies = [];
 
 #pragma warning disable IDE0060 // Remove unused parameter
             public Task ReportPayload(byte[] body, CancellationToken cancellationToken = default)
