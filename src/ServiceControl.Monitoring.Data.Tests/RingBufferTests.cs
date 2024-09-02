@@ -32,7 +32,7 @@
             var values = Enumerable.Repeat(1, RingBuffer.Size).Select(i => (long)i).ToArray();
             WriteValues(values);
 
-            Assert.False(ringBuffer.TryWrite(long.MaxValue));
+            Assert.That(ringBuffer.TryWrite(long.MaxValue), Is.False);
 
             Consume(values);
             Consume();
@@ -69,7 +69,7 @@
         public void Estimate_just_initialized_ring_size()
         {
             // This test is single threaded so no cross-thread aberrations will be visible.
-            Assert.AreEqual(0, ringBuffer.RoughlyEstimateItemsToConsume());
+            Assert.That(ringBuffer.RoughlyEstimateItemsToConsume(), Is.EqualTo(0));
         }
 
         [Test]
@@ -80,7 +80,7 @@
             WriteValues(values);
             Consume(values);
 
-            Assert.AreEqual(0, ringBuffer.RoughlyEstimateItemsToConsume());
+            Assert.That(ringBuffer.RoughlyEstimateItemsToConsume(), Is.EqualTo(0));
         }
 
         [Test]
@@ -90,7 +90,7 @@
             var values = Enumerable.Repeat(1, RingBuffer.Size).Select(i => (long)i).ToArray();
             WriteValues(values);
 
-            Assert.AreEqual(RingBuffer.Size, ringBuffer.RoughlyEstimateItemsToConsume());
+            Assert.That(ringBuffer.RoughlyEstimateItemsToConsume(), Is.EqualTo(RingBuffer.Size));
         }
 
         [Test]
@@ -155,17 +155,17 @@
         {
             var read = ringBuffer.Consume(values.Length, entries =>
             {
-                CollectionAssert.AreEqual(values, entries.Select(e => e.Value).ToArray());
+                Assert.That(values, Is.EquivalentTo(entries.Select(e => e.Value).ToArray()));
             });
 
-            Assert.AreEqual(values.Length, read);
+            Assert.That(read, Is.EqualTo(values.Length));
         }
 
         void WriteValues(params long[] values)
         {
             foreach (var value in values)
             {
-                Assert.True(ringBuffer.TryWrite(value));
+                Assert.That(ringBuffer.TryWrite(value), Is.True);
             }
         }
     }
